@@ -19,7 +19,7 @@ import { SearchFlightsComponent } from './search-flights/search-flights.componen
     HttpClientModule,
     FormsModule,
     RouterModule.forRoot([
-      { path: '', component: HomeComponent, pathMatch: 'full' },
+      { path: '', component: SearchFlightsComponent, pathMatch: 'full' },
     ])
   ],
   providers: [],

@@ -15,11 +15,9 @@ public class FlightController : ControllerBase
         _logger = logger;
     }
 
-    Random rand = new Random();
+    static Random rand = new Random();
 
-    [HttpGet]
-    public IEnumerable<FlightRm> Search(){
-        return new FlightRm[] { 
+    static private FlightRm[] flights = new FlightRm[]{
             new (Guid.NewGuid(),
                 "American Airlines",
                 rand.Next(90,5000).ToString(),
@@ -62,7 +60,23 @@ public class FlightController : ControllerBase
                 new TimePlaceRm("Warsaw", DateTime.Now.AddHours(rand.Next(4,10))),
                 rand.Next(1,853)
             ),
-            };
+    };
+
+    [HttpGet]
+    public IEnumerable<FlightRm> Search(){
+        return flights;
     }
 
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [HttpGet("{id}")]
+    public ActionResult<FlightRm> Find(Guid id){
+
+        var flight = flights.SingleOrDefault(f => f.Id == id);
+
+        if(flight == null){
+            return NotFound();
+        }
+
+        return Ok(flight);
+    }
 }

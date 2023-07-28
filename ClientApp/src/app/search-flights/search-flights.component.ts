@@ -1,5 +1,8 @@
 import { Time } from '@angular/common';
 import { Component } from '@angular/core';
+import { FlightService } from '../api/services';
+import { TimePlaceRm } from '../api/models';
+import { FlightRm } from '../api/models';
 
 @Component({
   selector: 'app-search-flights',
@@ -8,41 +11,21 @@ import { Component } from '@angular/core';
 })
 export class SearchFlightsComponent {
 
-  searchResult: FlightRm[] = [
-    {
-      airline: "American Airlines",
-      remainingSeats: 500,
-      departure: {time: Date.now().toString(), place: "Los Angeles"},
-      arrival: {time: Date.now().toString(), place: "Istanbul"},
-      price: "350",
-    },
-    {
-      airline: "Deutsche BA",
-      remainingSeats: 60,
-      departure: {time: Date.now().toString(), place: "Munchen"},
-      arrival: {time: Date.now().toString(), place: "Schiphol"},
-      price: "600",
-    },
-    {
-      airline: "British Airways",
-      remainingSeats: 60,
-      departure: {time: Date.now().toString(), place: "London"},
-      arrival: {time: Date.now().toString(), place: "Rome"},
-      price: "600",
-    },
-  ]
+  searchResult: FlightRm[] = [];
 
-}
+  constructor(private flightService: FlightService){
 
-export interface FlightRm {
-  airline: string;
-  arrival: TimePlaceRm;
-  departure: TimePlaceRm;
-  price: string;
-  remainingSeats: number;
-}
+  }
 
-export interface TimePlaceRm {
-  place: string;
-  time: string;
+  search(){
+    // this is async, subscribe listener waits for the result
+    this.flightService.searchFlight({})
+      .subscribe(response => this.searchResult = response,
+      this.handleError);
+  }
+
+  private handleError(err: any){
+    console.log(err);
+  }
+
 }

@@ -63,11 +63,17 @@ public class FlightController : ControllerBase
     };
 
     [HttpGet]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(500)]
+    [ProducesResponseType(typeof(IEnumerable<FlightRm>),200)]
     public IEnumerable<FlightRm> Search(){
         return flights;
     }
 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(500)]
+    [ProducesResponseType(typeof(FlightRm),200)]
     [HttpGet("{id}")]
     public ActionResult<FlightRm> Find(Guid id){
 

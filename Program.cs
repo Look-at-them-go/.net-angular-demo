@@ -15,7 +15,7 @@ builder.Services.AddSwaggerGen( c =>
 var app = builder.Build();
 
 // setting up cors
-app.UseCors(bulder => bulder.WithOrigins("*"));
+app.UseCors(bulder => bulder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader());
 
 app.UseSwagger().UseSwaggerUI();
 

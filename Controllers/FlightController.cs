@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using _net_angular_demo.ReadModels;
+using _net_angular_demo.Dto;
 
 namespace _net_angular_demo.Controllers;
 
@@ -62,6 +63,8 @@ public class FlightController : ControllerBase
             ),
     };
 
+    static private IList<BookDto> bookings = new List<BookDto>();
+
     [HttpGet]
     [ProducesResponseType(400)]
     [ProducesResponseType(500)]
@@ -84,5 +87,22 @@ public class FlightController : ControllerBase
         }
 
         return Ok(flight);
+    }
+
+    [HttpPost]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    [ProducesResponseType(500)]
+    [ProducesResponseType(200)]
+    public IActionResult Book(BookDto dto){
+        Console.WriteLine($"Booking a new flight {dto.FlightId}");
+
+        var flightFound = flights.Any(f => f.Id == dto.FlightId);
+        if(flightFound == false){
+            return NotFound();
+        }
+
+        bookings.Add(dto);
+        return CreatedAtAction(nameof(Find), new {id = dto.FlightId});
     }
 }

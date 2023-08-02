@@ -2,16 +2,35 @@ using _net_angular_demo.Domain.Errors;
 
 namespace _net_angular_demo.Domain.Entities;
 
-public record Flight(
-    Guid Id,
-    string Airline,
-    string Price,
-    TimePlace Departure,
-    TimePlace Arrival,
-    int remainingSeats
-){
+public class Flight{
+
+    
+    public Guid Id {get; set;}
+    public string Airline {get; set;}
+    public string Price {get; set;}
+    public TimePlace Departure {get; set;}
+    public TimePlace Arrival {get; set;}
+    public int remainingSeats {get; set;}
+
     public IList<Booking> bookings = new List<Booking>();
-    public int remainingSeats {get; set;} = remainingSeats;
+
+    public Flight(){}
+    public Flight(
+        Guid id,
+        string airline,
+        string price,
+        TimePlace departure,
+        TimePlace arrival,
+        int remaining_Seats
+    ){
+        Id = id;
+        Airline = airline;
+        Price = price;
+        Departure = departure;
+        Arrival = arrival;
+        remainingSeats = remaining_Seats;
+    }
+
 
     public object? MakeBooking(string passengerEmail, byte numberOfSeats){
         

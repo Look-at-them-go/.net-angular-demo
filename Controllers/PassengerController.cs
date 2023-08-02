@@ -30,7 +30,9 @@ namespace net_angular_demo.Controllers
                 dto.LastName,
                 dto.Gender
             ));
-            Console.WriteLine(entities.passengers.Count);
+
+            entities.SaveChanges();
+            
             return CreatedAtAction(nameof(Find), new {email= dto.Email});
         }
 

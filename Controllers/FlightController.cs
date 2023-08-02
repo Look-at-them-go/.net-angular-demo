@@ -97,6 +97,8 @@ public class FlightController : ControllerBase
             return Conflict(new {message = "The number of seats selected exceeds the number of available seats"});
         }
 
+        entities.SaveChanges();
+
         return CreatedAtAction(nameof(Find), new {id = dto.FlightId});
     }
 }

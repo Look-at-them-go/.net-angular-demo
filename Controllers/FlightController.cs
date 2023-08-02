@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using _net_angular_demo.ReadModels;
 using _net_angular_demo.Dto;
+using _net_angular_demo.Domain.Entities;
+using _net_angular_demo.Domain.Errors;
 
 namespace _net_angular_demo.Controllers;
 
@@ -18,59 +20,75 @@ public class FlightController : ControllerBase
 
     static Random rand = new Random();
 
-    static private FlightRm[] flights = new FlightRm[]{
+    static private Flight[] flights = new Flight[]{
             new (Guid.NewGuid(),
                 "American Airlines",
                 rand.Next(90,5000).ToString(),
-                new TimePlaceRm("Los Angeles", DateTime.Now.AddHours(rand.Next(1,3))),
-                new TimePlaceRm("Istanbul", DateTime.Now.AddHours(rand.Next(4,10))),
-                rand.Next(1,853)
+                new TimePlace("Los Angeles", DateTime.Now.AddHours(rand.Next(1,3))),
+                new TimePlace("Istanbul", DateTime.Now.AddHours(rand.Next(4,10))),
+                2
             ),
             new (Guid.NewGuid(),
                 "Deutsche BA",
                 rand.Next(90,5000).ToString(),
-                new TimePlaceRm("Munchen", DateTime.Now.AddHours(rand.Next(1,3))),
-                new TimePlaceRm("Schiphol", DateTime.Now.AddHours(rand.Next(4,10))),
+                new TimePlace("Munchen", DateTime.Now.AddHours(rand.Next(1,3))),
+                new TimePlace("Schiphol", DateTime.Now.AddHours(rand.Next(4,10))),
                 rand.Next(1,853)
             ),
             new (Guid.NewGuid(),
                 "British Airways",
                 rand.Next(90,5000).ToString(),
-                new TimePlaceRm("London", DateTime.Now.AddHours(rand.Next(1,3))),
-                new TimePlaceRm("Rome", DateTime.Now.AddHours(rand.Next(4,10))),
+                new TimePlace("London", DateTime.Now.AddHours(rand.Next(1,3))),
+                new TimePlace("Rome", DateTime.Now.AddHours(rand.Next(4,10))),
                 rand.Next(1,853)
             ),
             new (Guid.NewGuid(),
                 "Basiq Air",
                 rand.Next(90,5000).ToString(),
-                new TimePlaceRm("Amsterdam", DateTime.Now.AddHours(rand.Next(1,3))),
-                new TimePlaceRm("Glasgow", DateTime.Now.AddHours(rand.Next(4,10))),
+                new TimePlace("Amsterdam", DateTime.Now.AddHours(rand.Next(1,3))),
+                new TimePlace("Glasgow", DateTime.Now.AddHours(rand.Next(4,10))),
                 rand.Next(1,853)
             ),
             new (Guid.NewGuid(),
                 "BB Heliag",
                 rand.Next(90,5000).ToString(),
-                new TimePlaceRm("Zurich", DateTime.Now.AddHours(rand.Next(1,3))),
-                new TimePlaceRm("Baku", DateTime.Now.AddHours(rand.Next(4,10))),
+                new TimePlace("Zurich", DateTime.Now.AddHours(rand.Next(1,3))),
+                new TimePlace("Baku", DateTime.Now.AddHours(rand.Next(4,10))),
                 rand.Next(1,853)
             ),
             new (Guid.NewGuid(),
                 "Adria Airways",
                 rand.Next(90,5000).ToString(),
-                new TimePlaceRm("Ljubljana", DateTime.Now.AddHours(rand.Next(1,3))),
-                new TimePlaceRm("Warsaw", DateTime.Now.AddHours(rand.Next(4,10))),
+                new TimePlace("Ljubljana", DateTime.Now.AddHours(rand.Next(1,3))),
+                new TimePlace("Warsaw", DateTime.Now.AddHours(rand.Next(4,10))),
                 rand.Next(1,853)
             ),
     };
 
-    static private IList<BookDto> bookings = new List<BookDto>();
+    
 
     [HttpGet]
     [ProducesResponseType(400)]
     [ProducesResponseType(500)]
     [ProducesResponseType(typeof(IEnumerable<FlightRm>),200)]
     public IEnumerable<FlightRm> Search(){
-        return flights;
+
+        FlightRm[] flightRmList = flights.Select(flight => new FlightRm(
+            flight.Id,
+            flight.Airline,
+            flight.Price,
+            new TimePlaceRm(
+                flight.Departure.Place.ToString(),
+                flight.Departure.Time
+            ),
+            new TimePlaceRm(
+                flight.Arrival.Place.ToString(),
+                flight.Arrival.Time
+            ),
+            flight.remainingSeats
+        )).ToArray();
+
+        return flightRmList;
     }
 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -86,7 +104,22 @@ public class FlightController : ControllerBase
             return NotFound();
         }
 
-        return Ok(flight);
+        var readModel = new FlightRm(
+            flight.Id,
+            flight.Airline,
+            flight.Price,
+            new TimePlaceRm(
+                flight.Departure.Place.ToString(),
+                flight.Departure.Time
+            ),
+            new TimePlaceRm(
+                flight.Arrival.Place.ToString(),
+                flight.Arrival.Time
+            ),
+            flight.remainingSeats
+        );
+
+        return Ok(readModel);
     }
 
     [HttpPost]
@@ -97,12 +130,17 @@ public class FlightController : ControllerBase
     public IActionResult Book(BookDto dto){
         Console.WriteLine($"Booking a new flight {dto.FlightId}");
 
-        var flightFound = flights.Any(f => f.Id == dto.FlightId);
-        if(flightFound == false){
+        var flight = flights.SingleOrDefault(f => f.Id == dto.FlightId);
+        if(flight == null){
             return NotFound();
         }
 
-        bookings.Add(dto);
+        var error = flight.MakeBooking(dto.PassengerEmail, dto.NumberOfSeats);
+
+        if(error is OverbookError){
+            return Conflict(new {message = "The number of seats selected exceeds the number of available seats"});
+        }
+
         return CreatedAtAction(nameof(Find), new {id = dto.FlightId});
     }
 }

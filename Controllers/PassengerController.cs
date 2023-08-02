@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using _net_angular_demo.Dto;
 using _net_angular_demo.ReadModels;
+using _net_angular_demo.Domain.Entities;
 
 namespace net_angular_demo.Controllers
 {
@@ -14,14 +15,19 @@ namespace net_angular_demo.Controllers
     public class PassengerController : ControllerBase
     {
 
-        static private IList<NewPassengerDto> passengers = new List<NewPassengerDto>();
+        static private IList<Passenger> passengers = new List<Passenger>();
 
         [HttpPost]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
         public IActionResult Register(NewPassengerDto dto){
-            passengers.Add(dto);
+            passengers.Add(new Passenger(
+                dto.Email,
+                dto.FirstName,
+                dto.LastName,
+                dto.Gender
+            ));
             Console.WriteLine(passengers.Count);
             return CreatedAtAction(nameof(Find), new {email= dto.Email});
         }

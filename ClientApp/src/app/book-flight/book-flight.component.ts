@@ -44,6 +44,12 @@ export class BookFlightComponent implements OnInit{
       this.router.navigate(['/search-flights']);
       alert("Flight not found");
     }
+
+    if(err.status == 409){
+      console.log("err: " + err + " message: " +  err.message);
+      alert(JSON.parse(err.error).message);
+    }
+
     console.log("Response Error");
     console.log("Status: ", err.status);
     console.log("Status Text:", err.statusText);

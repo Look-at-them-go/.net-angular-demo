@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using _net_angular_demo.Dto;
 using _net_angular_demo.ReadModels;
 using _net_angular_demo.Domain.Entities;
+using _net_angular_demo.Data;
 
 namespace net_angular_demo.Controllers
 {
@@ -15,20 +11,26 @@ namespace net_angular_demo.Controllers
     public class PassengerController : ControllerBase
     {
 
-        static private IList<Passenger> passengers = new List<Passenger>();
+        private readonly Entities entities;
+
+        public PassengerController(Entities e){
+            entities = e;
+        }
+
+
 
         [HttpPost]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
         public IActionResult Register(NewPassengerDto dto){
-            passengers.Add(new Passenger(
+            entities.passengers.Add(new Passenger(
                 dto.Email,
                 dto.FirstName,
                 dto.LastName,
                 dto.Gender
             ));
-            Console.WriteLine(passengers.Count);
+            Console.WriteLine(entities.passengers.Count);
             return CreatedAtAction(nameof(Find), new {email= dto.Email});
         }
 
@@ -40,7 +42,7 @@ namespace net_angular_demo.Controllers
         [ProducesResponseType(500)]
         public ActionResult<PassengerRm> Find(string email){
             
-            var passenger = passengers.FirstOrDefault(p => p.Email == email);
+            var passenger = entities.passengers.FirstOrDefault(p => p.Email == email);
             
             if (passenger == null){
                 return NotFound();

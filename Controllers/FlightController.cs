@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using _net_angular_demo.ReadModels;
 using _net_angular_demo.Dto;
-using _net_angular_demo.Domain.Entities;
 using _net_angular_demo.Domain.Errors;
+using _net_angular_demo.Data;
 
 namespace _net_angular_demo.Controllers;
 
@@ -13,57 +13,13 @@ public class FlightController : ControllerBase
 
     private readonly ILogger<FlightController> _logger;
 
-    public FlightController(ILogger<FlightController> logger)
+    private readonly Entities entities;
+
+    public FlightController(ILogger<FlightController> logger, Entities e)
     {
         _logger = logger;
+        entities = e;
     }
-
-    static Random rand = new Random();
-
-    static private Flight[] flights = new Flight[]{
-            new (Guid.NewGuid(),
-                "American Airlines",
-                rand.Next(90,5000).ToString(),
-                new TimePlace("Los Angeles", DateTime.Now.AddHours(rand.Next(1,3))),
-                new TimePlace("Istanbul", DateTime.Now.AddHours(rand.Next(4,10))),
-                2
-            ),
-            new (Guid.NewGuid(),
-                "Deutsche BA",
-                rand.Next(90,5000).ToString(),
-                new TimePlace("Munchen", DateTime.Now.AddHours(rand.Next(1,3))),
-                new TimePlace("Schiphol", DateTime.Now.AddHours(rand.Next(4,10))),
-                rand.Next(1,853)
-            ),
-            new (Guid.NewGuid(),
-                "British Airways",
-                rand.Next(90,5000).ToString(),
-                new TimePlace("London", DateTime.Now.AddHours(rand.Next(1,3))),
-                new TimePlace("Rome", DateTime.Now.AddHours(rand.Next(4,10))),
-                rand.Next(1,853)
-            ),
-            new (Guid.NewGuid(),
-                "Basiq Air",
-                rand.Next(90,5000).ToString(),
-                new TimePlace("Amsterdam", DateTime.Now.AddHours(rand.Next(1,3))),
-                new TimePlace("Glasgow", DateTime.Now.AddHours(rand.Next(4,10))),
-                rand.Next(1,853)
-            ),
-            new (Guid.NewGuid(),
-                "BB Heliag",
-                rand.Next(90,5000).ToString(),
-                new TimePlace("Zurich", DateTime.Now.AddHours(rand.Next(1,3))),
-                new TimePlace("Baku", DateTime.Now.AddHours(rand.Next(4,10))),
-                rand.Next(1,853)
-            ),
-            new (Guid.NewGuid(),
-                "Adria Airways",
-                rand.Next(90,5000).ToString(),
-                new TimePlace("Ljubljana", DateTime.Now.AddHours(rand.Next(1,3))),
-                new TimePlace("Warsaw", DateTime.Now.AddHours(rand.Next(4,10))),
-                rand.Next(1,853)
-            ),
-    };
 
     
 
@@ -73,7 +29,7 @@ public class FlightController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<FlightRm>),200)]
     public IEnumerable<FlightRm> Search(){
 
-        FlightRm[] flightRmList = flights.Select(flight => new FlightRm(
+        FlightRm[] flightRmList = entities.flights.Select(flight => new FlightRm(
             flight.Id,
             flight.Airline,
             flight.Price,
@@ -98,7 +54,7 @@ public class FlightController : ControllerBase
     [HttpGet("{id}")]
     public ActionResult<FlightRm> Find(Guid id){
 
-        var flight = flights.SingleOrDefault(f => f.Id == id);
+        var flight = entities.flights.SingleOrDefault(f => f.Id == id);
 
         if(flight == null){
             return NotFound();
@@ -130,7 +86,7 @@ public class FlightController : ControllerBase
     public IActionResult Book(BookDto dto){
         Console.WriteLine($"Booking a new flight {dto.FlightId}");
 
-        var flight = flights.SingleOrDefault(f => f.Id == dto.FlightId);
+        var flight = entities.flights.SingleOrDefault(f => f.Id == dto.FlightId);
         if(flight == null){
             return NotFound();
         }

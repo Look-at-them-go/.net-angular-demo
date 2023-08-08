@@ -38,7 +38,6 @@ namespace _net_angular_demo.Controllers
                                                             b.NumberOfSeats,
                                                             email
                                                         )));
-
             return Ok(bookings);                                               
         }
 

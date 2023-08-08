@@ -5,8 +5,8 @@ public record BookingRm(
     Guid FlightId,
     string Airline,
     string Price,
-    TimeplaceRm Arrival,
-    TimeplaceRm Departure,
+    TimePlaceRm Arrival,
+    TimePlaceRm Departure,
     int NumberOfBookedSeats,
     string PassengerEmail
 );

@@ -4,10 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using _net_angular_demo.Domain.Entities;
 using _net_angular_demo.Data;
 using _net_angular_demo.ReadModels;
 
-namespace net_angular_demo.Controllers
+namespace _net_angular_demo.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -15,7 +16,7 @@ namespace net_angular_demo.Controllers
     {
         private readonly Entities entities;
 
-        public BookingController(Entites e){
+        public BookingController(Entities e){
             entities = e;
         }
 
@@ -25,7 +26,7 @@ namespace net_angular_demo.Controllers
         [ProducesResponseType(typeof(IEnumerable<BookingRm>),200)]
         public ActionResult<IEnumerable<BookingRm>> List(string email){
 
-            IEnumerable<BookingRm> bookings = entities.Flights.ToArray()
+            IEnumerable<BookingRm> bookings = entities.flights.ToArray()
                                                 .SelectMany(f => f.bookings
                                                     .Where(b => b.PassengerEmail == email)
                                                         .Select(b => new BookingRm(

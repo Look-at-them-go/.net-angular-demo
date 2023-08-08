@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using _net_angular_demo.Domain.Entities;
 using _net_angular_demo.Data;
 using _net_angular_demo.ReadModels;
+using _net_angular_demo.Dto;
+using _net_angular_demo.Domain.Errors;
 
 namespace _net_angular_demo.Controllers
 {
@@ -39,6 +41,31 @@ namespace _net_angular_demo.Controllers
                                                             email
                                                         )));
             return Ok(bookings);                                               
+        }
+
+
+        [HttpDelete]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public IActionResult Cancel(BookDto dto){
+
+            var flight = entities.flights.Find(dto.FlightId);
+
+            var error = flight?.CancelBooking(dto.PassengerEmail, dto.NumberOfSeats);
+
+            if(error == null){
+                entities.SaveChanges();
+                return NoContent();
+            }
+
+            if(error is NotFoundError){
+                return NotFound();
+            }
+
+            throw new Exception($"The error of type: {error.GetType().Name} occured while canceling the booking made by {dto.PassengerEmail}");
+
         }
 
     }

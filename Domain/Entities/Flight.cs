@@ -48,4 +48,18 @@ public class Flight{
         this.remainingSeats -= numberOfSeats;
         return null;
     }
+
+    public object? CancelBooking(string passengerEmail, byte numberOfSeats){
+
+        var booking = bookings.FirstOrDefault(b => numberOfSeats == b.NumberOfSeats && passengerEmail.ToLower() == b.PassengerEmail.ToLower());
+    
+        if(booking == null){
+            return new NotFoundError();
+        }
+
+        bookings.Remove(booking);
+        remainingSeats += booking.NumberOfSeats;
+
+        return null;
+    }
 }

@@ -3,6 +3,7 @@ using _net_angular_demo.ReadModels;
 using _net_angular_demo.Dto;
 using _net_angular_demo.Domain.Errors;
 using _net_angular_demo.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace _net_angular_demo.Controllers;
 
@@ -96,8 +97,13 @@ public class FlightController : ControllerBase
         if(error is OverbookError){
             return Conflict(new {message = "The number of seats selected exceeds the number of available seats"});
         }
-
-        entities.SaveChanges();
+        
+        try{
+            entities.SaveChanges();
+        } catch (DbUpdateConcurrencyException e) {
+            return Conflict(new {message = "Error occured while booking"});
+        }
+        
 
         return CreatedAtAction(nameof(Find), new {id = dto.FlightId});
     }
